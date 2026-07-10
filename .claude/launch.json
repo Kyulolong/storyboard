@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "storyboard-dev",
+      "runtimeExecutable": "D:\\Develop\\storyboard\\dev-portable.cmd",
+      "runtimeArgs": [],
+      "port": 3000
+    }
+  ]
+}
