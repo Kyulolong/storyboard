@@ -58,6 +58,11 @@ export default function InputScreen({
   const [aspectId, setAspectId] = useState<AspectId>(format.defaultAspect);
 
   const [avail, setAvail] = useState<Avail | null>(null);
+  // 설정을 못 불러왔다("아직 안 왔다"와 다르다). 이걸 구분하지 않으면
+  // 연결 실패가 "키를 설정하세요"로 보여서, 설정을 이미 끝낸 사람이
+  // 멀쩡한 .env.local을 의심하게 된다.
+  const [availFailed, setAvailFailed] = useState(false);
+  const [retry, setRetry] = useState(0); // 늘리면 다시 불러온다
   const [textProvider, setTextProvider] = useState<LlmProviderId>("groq");
   const [imageProvider, setImageProvider] = useState<ImageProviderId>("mock");
   const [imageStyle, setImageStyle] = useState<ImageStyleId>(DEFAULT_IMAGE_STYLE);
@@ -67,21 +72,40 @@ export default function InputScreen({
   useEffect(() => {
     setKeys(loadKeys());
     let alive = true;
-    fetch("/api/providers")
-      .then((r) => r.json())
-      .then((a: Avail) => {
-        if (!alive) return;
-        setAvail(a);
-        if (a.defaults.text !== "none") setTextProvider(a.defaults.text as LlmProviderId);
-        setImageProvider(a.defaults.image as ImageProviderId);
-      })
-      .catch(() => {
-        /* 못 받아오면 mock으로 두고 조용히 진행 */
-      });
+    setAvailFailed(false);
+
+    // 잠깐 끊긴 것뿐일 수 있으니 몇 번 더 해보고, 그래도 안 되면 실패라고 말한다.
+    const load = async () => {
+      for (let attempt = 0; ; attempt++) {
+        try {
+          const r = await fetch("/api/providers");
+          // fetch는 404/500에도 throw하지 않는다. 상태를 직접 봐야 한다.
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+          const a: Avail = (await r.json()) as Avail;
+          if (!alive) return;
+          setAvail(a);
+          if (a.defaults.text !== "none")
+            setTextProvider(a.defaults.text as LlmProviderId);
+          setImageProvider(a.defaults.image as ImageProviderId);
+          return;
+        } catch {
+          if (!alive) return;
+          if (attempt >= 2) {
+            setAvailFailed(true);
+            return;
+          }
+          // 0.4s → 0.8s 기다렸다 재시도
+          await new Promise((ok) => setTimeout(ok, 400 * 2 ** attempt));
+          if (!alive) return;
+        }
+      }
+    };
+    load();
+
     return () => {
       alive = false;
     };
-  }, []);
+  }, [retry]);
 
   const setKey = (service: ServiceId, key: string | undefined) => {
     const next = { ...keys, [service]: key };
@@ -238,6 +262,8 @@ export default function InputScreen({
           formatId={formatId}
           aspectId={aspectId}
           enabled={!!avail?.textEnabled}
+          availFailed={availFailed}
+          onRetryAvail={() => setRetry((n) => n + 1)}
           textProvider={textProvider}
           onPickTextProvider={setTextProvider}
           keys={keys}
@@ -262,6 +288,8 @@ function PasteTab({
   formatId,
   aspectId,
   enabled,
+  availFailed,
+  onRetryAvail,
   textProvider,
   onPickTextProvider,
   keys,
@@ -274,6 +302,8 @@ function PasteTab({
   formatId: FormatId;
   aspectId: AspectId;
   enabled: boolean;
+  availFailed: boolean;
+  onRetryAvail: () => void;
   textProvider: LlmProviderId;
   onPickTextProvider: (id: LlmProviderId) => void;
   keys: KeyMap;
@@ -499,14 +529,32 @@ function PasteTab({
           )}
         </div>
 
-        {/* 키가 없으면 버튼 자체가 없어서 "이런 기능이 없나?"로 읽힌다.
-            켜는 방법을 한 줄로 알려준다. */}
-        {!autoGen && (
+        {/* "설정을 못 물어봤다"와 "물어봤더니 꺼져 있다"는 다른 문제다.
+            둘을 같은 안내문으로 뭉뚱그리면, 설정을 이미 끝낸 사람이
+            멀쩡한 .env.local을 뒤지게 된다. */}
+        {availFailed ? (
           <div className="hint" style={{ marginTop: 10 }}>
-            .env.local에 <code>NEXT_PUBLIC_TEXT_PROVIDER</code>(groq/gemini/openai)와 키를
-            넣고 dev 서버를 재시작하면, 여기서 <strong>JSON 생성</strong> 버튼을 쓸 수
-            있어요. Groq·Gemini는 무료 한도가 있습니다.
+            설정을 확인하지 못했어요 — 서버에 연결하지 못했습니다.{" "}
+            <strong>.env.local 문제가 아닐 수 있어요.</strong> dev 서버가 떠 있는지
+            확인한 뒤 다시 시도해 주세요.{" "}
+            <button
+              className="btn"
+              style={{ marginLeft: 6, padding: "2px 10px" }}
+              onClick={onRetryAvail}
+            >
+              다시 시도
+            </button>
           </div>
+        ) : (
+          /* 키가 없으면 버튼 자체가 없어서 "이런 기능이 없나?"로 읽힌다.
+             켜는 방법을 한 줄로 알려준다. */
+          !autoGen && (
+            <div className="hint" style={{ marginTop: 10 }}>
+              .env.local에 <code>NEXT_PUBLIC_TEXT_PROVIDER</code>(groq/gemini/openai)와 키를
+              넣고 dev 서버를 재시작하면, 여기서 <strong>JSON 생성</strong> 버튼을 쓸 수
+              있어요. Groq·Gemini는 무료 한도가 있습니다.
+            </div>
+          )
         )}
       </div>
 
