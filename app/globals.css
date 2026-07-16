@@ -1,16 +1,53 @@
+/* 디자인 시스템: ~/.claude/DESIGN.md — "따뜻한 캔버스 위의 형광 초록 한 점"
+ *
+ * 이 앱은 다크 한 가지에 의도적으로 커밋한다. 화면의 주인공이 종이색(--paper)
+ * 스케치라서, 어두운 따뜻한 크롬이 그걸 "책상 위에 놓인 종이"로 읽히게 만든다.
+ * 밝은 배경에선 종이가 배경에 녹아 콘티가 아니라 웹페이지처럼 보인다.
+ * (인쇄/PDF는 아래 @media print에서 흰 바탕으로 뒤집는다.)
+ *
+ * 형광이 찍히는 '한 점':
+ *   - 입력 화면: 지금 해야 할 그 버튼 (JSON이 비었으면 "JSON 생성",
+ *     채워졌으면 "보드 만들기" — 형광이 단계를 따라 옮겨간다)
+ *   - 보드 화면: "이미지로 저장"
+ * 나머지는 전부 따뜻한 중립색. 칩/탭/링크/구분선에 형광을 쓰지 않는다.
+ */
 :root {
-  --bg: #0f1115;
-  --surface: #171a21;
-  --surface-2: #1f232c;
-  --border: #2a2f3a;
-  --text: #e8eaed;
-  --text-dim: #9aa0aa;
-  --accent: #7c9cff;
-  --accent-weak: #2a3350;
-  --hook: #ffb454;
-  --danger: #ff6b6b;
-  --radius: 14px;
-  --paper: #f6f4ee;
+  /* ── 형광 한 점 ───────────────────────── */
+  --acid: #8fff00;
+  --acid-soft: #b8ff5c; /* hover 등 보조 강조 */
+  /* "현재 배경에서 항상 보이는 초록". 이름은 '진한 초록'이지만 역할이 그렇다.
+     어두운 바탕에선 형광 그대로, 밝은 바탕(아래 @media print)에선 뒤집힌다. */
+  --acid-deep: #8fff00;
+  /* 형광 배경 위의 글자색. --bg를 쓰지 않고 못 박아둔다:
+     나중에 라이트 테마가 붙어도 이 조합(16.5:1)이 안 깨지게. */
+  --on-acid: #14140f;
+
+  /* ── 따뜻한 캔버스 (dark) — 푸른 검정이 아니라 올리브 기운의 검정 ── */
+  --bg: #14140f;
+  --surface: #1c1b15;
+  --surface-2: #24231b;
+  --line: #333226;
+  --ink: #f0eee4;
+  --ink-soft: #aba795;
+  --ink-faint: #8a8574;
+  --paper: #f6f4ee; /* 스케치가 그려지는 종이. 이미 따뜻한 흰색 */
+
+  /* ── 의미색 ──────────────────────────── */
+  --happy-accident: #e8834a; /* 에러 — 빨강이 아니라 따뜻한 테라코타 */
+  --caution: #e0a93b;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+
+  --font-sans: Pretendard, -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Segoe UI", "Noto Sans KR", sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+
+  color-scheme: dark;
 }
 
 * {
@@ -22,14 +59,19 @@ body {
   margin: 0;
   padding: 0;
   background: var(--bg);
-  color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic",
-    "Apple SD Gothic Neo", Roboto, sans-serif;
+  color: var(--ink);
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
+/* 링크는 조용한 참고물이다. 형광은 주인공 액션에 양보하고 밑줄로 알린다. */
 a {
-  color: var(--accent);
+  color: var(--ink-soft);
+  text-underline-offset: 3px;
+  text-decoration-color: var(--line);
+}
+a:hover {
+  color: var(--ink);
 }
 
 .container {
@@ -40,52 +82,104 @@ a {
 
 .app-header {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 24px;
 }
-.app-header h1 {
-  font-size: 22px;
-  margin: 0;
-  letter-spacing: -0.01em;
-}
-.app-header .sub {
-  color: var(--text-dim);
-  font-size: 13px;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
 }
 
-/* Tabs */
+/* 브랜드 마크 — 서비스마다 로고를 새로 그리지 않는다.
+   워드마크 앞에 찍은 초록 점 하나가 모든 서비스의 공통 마크다. */
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.brand h1 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+/* 납작한 단색 정원. 그라데이션·글로우·테두리 없음 — 점은 그냥 점이다.
+   em으로 잡아 제목 글자의 0.75배로 함께 커지고 작아진다. */
+.logo {
+  width: 0.75em;
+  height: 0.75em;
+  border-radius: 50%;
+  flex: none;
+  background: var(--acid-deep);
+}
+.brand p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-faint);
+  word-break: keep-all;
+}
+
+/* 서명 — 자랑이 아니라 낙관(落款)이라 형광을 쓰지 않는다.
+   평소엔 흐릿하게, 마우스를 올리면 또렷하게. */
+.credit {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-faint);
+  opacity: 0.65;
+  white-space: nowrap;
+  transition: opacity 0.2s ease-out;
+}
+.credit:hover {
+  opacity: 1;
+}
+
+/* Tabs — 선택 상태는 따뜻한 중립으로. 글씨 굵기가 선택을 한 번 더 말해준다. */
 .tabs {
   display: inline-flex;
   gap: 4px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: 999px;
   padding: 4px;
+  /* 위쪽 여백이 없으면 앞 패널에 딱 붙어 한 덩어리로 읽힌다.
+     탭은 별개의 선택이라 위아래로 같은 만큼 띄운다(디자인 시스템의 여백 스케일). */
+  margin-top: 24px;
   margin-bottom: 22px;
 }
 .tab {
   border: none;
   background: transparent;
-  color: var(--text-dim);
+  color: var(--ink-faint);
   padding: 8px 18px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 0.875rem;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: background 0.2s ease-out, color 0.2s ease-out;
+}
+.tab:hover {
+  color: var(--ink-soft);
 }
 .tab.active {
-  background: var(--accent-weak);
-  color: var(--text);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-weight: 650;
 }
 
 /* Cards / panels */
 .panel {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
   padding: 20px;
 }
 .panel + .panel {
@@ -93,69 +187,91 @@ a {
 }
 
 .label {
-  font-size: 13px;
-  color: var(--text-dim);
+  font-size: 0.8rem;
+  color: var(--ink-faint);
   margin-bottom: 8px;
   display: block;
 }
 
 textarea,
 input[type="text"],
+input[type="password"],
 input[type="number"] {
   width: 100%;
   background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--ink);
   padding: 11px 12px;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-family: inherit;
+  line-height: 1.6;
   resize: vertical;
+  word-break: keep-all;
 }
+textarea::placeholder,
+input::placeholder {
+  color: var(--ink-faint);
+}
+/* 포커스 링은 형광 예산의 허용된 예외 — 조작하는 그 순간에만 나타난다. */
 textarea:focus,
 input:focus {
-  outline: none;
-  border-color: var(--accent);
+  outline: 2px solid var(--acid);
+  outline-offset: -1px;
+  border-color: transparent;
 }
 textarea.code {
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 12.5px;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
   line-height: 1.5;
   min-height: 220px;
+  word-break: normal;
 }
 
 /* Buttons */
 .btn {
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   background: var(--surface-2);
-  color: var(--text);
+  color: var(--ink);
   padding: 10px 16px;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: var(--r-sm);
+  font-size: 0.875rem;
+  font-family: inherit;
+  font-weight: 650;
   cursor: pointer;
-  transition: all 0.12s ease;
+  transition: background 0.2s ease-out, border-color 0.2s ease-out;
 }
 .btn:hover {
-  border-color: var(--accent);
+  border-color: var(--ink-faint);
 }
+/* 이 화면의 형광 한 점. 글로우 없음 — 어두운 방에서 halo는 눈을 찌른다. */
 .btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: #0f1115;
-  font-weight: 600;
+  background: var(--acid);
+  color: var(--on-acid);
+  border-color: transparent;
+  font-weight: 700;
 }
 .btn.primary:hover {
-  filter: brightness(1.08);
+  background: var(--acid-soft);
 }
 .btn.ghost {
   background: transparent;
 }
+/* 위험 동작은 배경을 채우지 않는다. */
+.btn.danger {
+  background: transparent;
+  color: var(--happy-accident);
+  border-color: color-mix(in srgb, var(--happy-accident) 40%, var(--line));
+}
+.btn.danger:hover {
+  border-color: var(--happy-accident);
+}
 .btn.sm {
   padding: 6px 12px;
-  font-size: 13px;
+  font-size: 0.8rem;
 }
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 .btn-row {
@@ -166,37 +282,60 @@ textarea.code {
 }
 
 .hint {
-  color: var(--text-dim);
-  font-size: 13px;
-  line-height: 1.6;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+.hint code {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-soft);
 }
 .warn {
-  color: var(--hook);
-  font-size: 13px;
+  color: var(--caution);
+  font-size: 0.8rem;
 }
+/* 행복한 사고 — 겁주지 않는다. */
 .error {
-  color: var(--danger);
-  font-size: 13px;
+  color: var(--happy-accident);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  word-break: keep-all;
 }
 
 .spacer {
   height: 16px;
 }
 
+/* 무슨 일이 있었는지 + 어떻게 하면 되는지. 좌측 바 하나면 충분하다. */
+.banner {
+  padding: 12px 15px;
+  border-radius: var(--r-md);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--caution);
+  color: var(--ink-soft);
+  word-break: keep-all;
+}
+
 /* Magic prompt block */
 .magic-box {
   position: relative;
   background: var(--surface-2);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 14px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  padding: 14px;
   max-height: 260px;
   overflow: auto;
   white-space: pre-wrap;
-  font-family: "SFMono-Regular", Consolas, Menlo, monospace;
-  font-size: 12px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
   line-height: 1.55;
-  color: var(--text-dim);
+  /* surface-2 위라 ink-faint(4.27:1)는 AA 미달 → 한 칸 밝게. */
+  color: var(--ink-soft);
 }
 
 /* Board */
@@ -209,27 +348,115 @@ textarea.code {
   margin-bottom: 18px;
 }
 .board-meta {
-  color: var(--text-dim);
-  font-size: 13px;
+  color: var(--ink-faint);
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
 }
 
+/* 포맷 / 화면비 / provider 선택 버튼.
+   선택 상태를 형광으로 칠하지 않는다 — 면(surface)과 글씨 굵기로 말한다. */
+.preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.preset {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  padding: 10px 14px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  font-family: inherit;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.2s ease-out, border-color 0.2s ease-out,
+    color 0.2s ease-out;
+}
+.preset:hover {
+  border-color: var(--ink-faint);
+  color: var(--ink);
+}
+.preset.active {
+  border-color: var(--ink-faint);
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.preset-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+/* 선택은 색만이 아니라 굵기로도 말한다 (색만으로 정보를 전달하지 않는다). */
+.preset.active .preset-label {
+  font-weight: 750;
+}
+.preset-hint {
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+}
+/* 비용은 돈 얘기라 힌트보다 또렷하게. 다만 형광은 쓰지 않는다(주인공 액션 몫). */
+.preset-cost {
+  font-size: 0.7rem;
+  margin-top: 3px;
+  color: var(--caution);
+  font-variant-numeric: tabular-nums;
+}
+.preset-cost.free {
+  color: var(--ink-faint);
+}
+.preset.active .preset-cost.free {
+  color: var(--ink-soft);
+}
+.cost-note {
+  margin: 10px 0 0;
+}
+.cost-asof {
+  opacity: 0.7;
+}
+/* 선택된 칩은 바탕이 surface-2로 밝아진다 → 힌트도 한 칸 밝혀 AA를 지킨다. */
+.preset.active .preset-hint {
+  color: var(--ink-soft);
+}
+
+/* "그림은 어디서?" 블록 — 탭마다 있는 "보드 만들기" 바로 위에 꽂힌다. */
+.picker-block {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+/* 독립 패널로 쓰일 땐(직접 입력 탭) 패널 테두리가 이미 구분해준다. */
+.panel > .picker-block:only-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.picker-block > strong {
+  font-size: 0.875rem;
+}
+
+/* --cut-aspect / --board-min-col 은 Board가 화면비 프리셋에서 심어준다.
+   기본값은 프리셋이 없을 때를 위한 세로 9:16 폴백. */
 .board-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--board-min-col, 230px), 1fr));
   gap: 18px;
 }
 
 .cut-card {
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 .cut-sketch {
   position: relative;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: var(--cut-aspect, 9 / 16);
   background: var(--paper);
   display: flex;
   align-items: center;
@@ -241,9 +468,19 @@ textarea.code {
   height: 100%;
   display: block;
 }
+/* 종이(밝은 바탕) 위 글자다 — 형광은 여기 절대 오지 않는다(1.3:1). */
 .cut-sketch .loading {
-  color: #8a8577;
-  font-size: 13px;
+  /* 종이(밝은 바탕) 위 작은 글씨. ink-faint를 그대로 쓰면 3.35:1로 AA 미달이라
+     종이 기준으로 어둡게 잡은 따뜻한 회색을 쓴다. */
+  color: #6a655b;
+  font-size: 0.8rem;
+}
+.cut-sketch .loading.err {
+  color: #a2522a; /* 종이 위에서도 4.5:1을 넘는 테라코타 */
+  padding: 0 14px;
+  text-align: center;
+  line-height: 1.55;
+  word-break: keep-all;
 }
 .cut-badges {
   position: absolute;
@@ -254,22 +491,39 @@ textarea.code {
   flex-wrap: wrap;
 }
 .badge {
-  font-size: 11px;
+  font-size: 0.7rem;
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(15, 17, 21, 0.72);
-  color: var(--text);
+  background: rgba(20, 20, 15, 0.72);
+  color: var(--ink);
   backdrop-filter: blur(2px);
 }
 .badge.hook {
-  background: var(--hook);
-  color: #1a1205;
+  background: var(--caution);
+  color: var(--on-acid);
   font-weight: 700;
+}
+/* 원격 생성이 실패해 임시 그림이 들어간 컷.
+   점선 테두리로 "임시"를 모양으로도 말한다(색만으로 전달하지 않는다). */
+.badge.fallback {
+  background: rgba(232, 131, 74, 0.14);
+  color: var(--happy-accident);
+  border: 1px dashed var(--happy-accident);
+  cursor: help;
 }
 .cut-regen {
   position: absolute;
   bottom: 8px;
   right: 8px;
+  /* ↻ 글리프는 폰트마다 높이가 달라 버튼 안에서 뜬다. 크기를 고정해 가운데 맞춤. */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .cut-body {
@@ -279,25 +533,30 @@ textarea.code {
   gap: 7px;
 }
 .cut-no {
-  font-size: 12px;
-  color: var(--text-dim);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
   display: flex;
   justify-content: space-between;
+  font-variant-numeric: tabular-nums;
 }
 .cut-desc {
-  font-size: 13.5px;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  word-break: keep-all;
 }
 .field {
-  font-size: 12.5px;
-  line-height: 1.45;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  word-break: keep-all;
 }
 .field .k {
-  color: var(--text-dim);
+  color: var(--ink-faint);
   margin-right: 6px;
 }
+/* 화면에 박히는 글자(자막/카피)는 다른 종류의 정보라 따뜻한 앰버로 구분한다.
+   형광이 아니므로 주인공 액션과 경쟁하지 않는다. */
 .field.caption .v {
-  color: var(--hook);
+  color: var(--caution);
 }
 .field.dialogue .v {
   font-style: italic;
@@ -305,8 +564,8 @@ textarea.code {
 
 /* Manual form */
 .form-cut {
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
   padding: 14px;
   margin-bottom: 14px;
   background: var(--surface-2);
@@ -329,8 +588,59 @@ textarea.code {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 13px;
-  color: var(--text-dim);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+}
+/* accent-color에 형광을 넣는 건 이 시스템 최대의 함정. 중립으로. */
+.checkbox-row input {
+  accent-color: var(--ink-soft);
+}
+
+/* BYOK 키 입력 — 형광으로 두르지 않는다. 점선이 "임시로 맡아둔 것"을 말한다. */
+.key-box {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px dashed var(--line);
+  border-radius: var(--r-md);
+  background: var(--surface-2);
+}
+.key-box.saved {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-style: solid;
+}
+.key-status {
+  font-size: 0.8rem;
+}
+.key-status code {
+  color: var(--ink-soft); /* key-box는 surface-2 바탕 */
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+.key-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+.key-row input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-mono);
+}
+/* surface-2 바탕 위의 작은 글씨는 한 칸 밝게(AA). */
+.key-box .hint,
+.form-cut .label {
+  color: var(--ink-soft);
+}
+
+/* 포커스 링은 항상 보이게. 키보드로 전체 조작 가능해야 한다. */
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--acid);
+  outline-offset: 2px;
 }
 
 @media (max-width: 560px) {
@@ -339,19 +649,36 @@ textarea.code {
   }
 }
 
-/* 인쇄 / PDF 저장 시엔 흰 배경 + 보드만 */
+/* 밥 아저씨는 안 튄다. */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 인쇄 / PDF 저장 시엔 흰 바탕 + 보드만.
+   여기서만 라이트로 뒤집는다 — 종이에 형광/어두운 면을 쏟지 않는다. */
 @media print {
   :root {
     --bg: #fff;
     --surface: #fff;
-    --text: #111;
-    --text-dim: #555;
-    --border: #ccc;
+    --surface-2: #fff;
+    --ink: #23211a;
+    --ink-soft: #5c5849;
+    --ink-faint: #7e7969;
+    --line: #ccc;
+    --caution: #a87400; /* 밝은 바탕용 어두운 앰버 */
+    /* 흰 종이 위에서 #8fff00은 1.3:1로 사라진다. 도형도 글자와 똑같이 적용된다 —
+       브랜드 점이 면적까지 작아서 더 안 보인다. 밝은 바탕용으로 뒤집는다. */
+    --acid-deep: #3d6b00;
   }
   body {
     background: #fff;
   }
-  .app-header .sub,
+  .brand p,
+  .credit,
   .board-head,
   .tabs,
   .btn,

@@ -1,12 +1,13 @@
 import { Cut } from "./types";
+import { AspectId, getAspect } from "./formats";
 
 // 비용 0짜리 mock 스케치.
-// 컷 내용에 따라 세로 9:16 "러프 스토리보드 스케치" 느낌의 SVG를 결정적으로 생성한다.
+// 컷 내용에 따라 "러프 스토리보드 스케치" 느낌의 SVG를 결정적으로 생성한다.
 // => API 키 없이도 앱이 처음부터 끝까지 돌아가게 하는 안전장치.
 // fal 연결 후에는 이 함수 대신 실제 이미지 URL이 들어온다.
-
-const W = 360;
-const H = 640;
+//
+// 캔버스 크기는 화면비 프리셋(lib/formats.ts)에서 받는다. 그림 수식은 대부분
+// 프레임 높이 비율로 잡혀 있어 9:16이든 16:9든 그대로 성립한다.
 
 function hashSeed(s: string): number {
   let h = 2166136261;
@@ -121,27 +122,31 @@ function head(cx: number, cy: number, hr: number, r: () => number): string {
 }
 
 // 프레이밍별로 인물을 러프 라인으로 그린다. 위치/크기/포즈를 시드로 흔든다.
-function figure(f: Framing, r: () => number): string {
+function figure(f: Framing, r: () => number, W: number, H: number): string {
   const cx = W / 2 + (r() - 0.5) * 40;
 
   if (f === "wide") {
     const gy = H * (0.66 + r() * 0.08);
-    const hy = gy - 128;
+    // 전신이 프레임을 넘지 않도록 인물 키를 프레임 높이에 묶는다.
+    // (고정 128px이면 가로 16:9처럼 낮은 프레임에서 머리가 잘린다.)
+    const fh = Math.min(128, H * 0.34);
+    const hr = Math.max(9, fh * 0.125);
+    const hy = gy - fh;
     const aL = 0.4 + r() * 0.9;
     const aR = 0.4 + r() * 0.9;
     return `
       <line x1="30" y1="${gy}" x2="${W - 30}" y2="${gy}" stroke="#b8b1a2" stroke-width="1.6"/>
-      ${head(cx, hy, 16, r)}
-      <line x1="${cx}" y1="${hy + 16}" x2="${cx}" y2="${gy - 40}" ${STROKE}/>
-      <line x1="${cx}" y1="${hy + 36}" x2="${cx - 26 * aL}" y2="${hy + 62}" ${STROKE}/>
-      <line x1="${cx}" y1="${hy + 36}" x2="${cx + 26 * aR}" y2="${hy + 62}" ${STROKE}/>
-      <line x1="${cx}" y1="${gy - 40}" x2="${cx - 18}" y2="${gy}" ${STROKE}/>
-      <line x1="${cx}" y1="${gy - 40}" x2="${cx + 18}" y2="${gy}" ${STROKE}/>`;
+      ${head(cx, hy, hr, r)}
+      <line x1="${cx}" y1="${hy + hr}" x2="${cx}" y2="${gy - fh * 0.31}" ${STROKE}/>
+      <line x1="${cx}" y1="${hy + fh * 0.28}" x2="${cx - 26 * aL}" y2="${hy + fh * 0.48}" ${STROKE}/>
+      <line x1="${cx}" y1="${hy + fh * 0.28}" x2="${cx + 26 * aR}" y2="${hy + fh * 0.48}" ${STROKE}/>
+      <line x1="${cx}" y1="${gy - fh * 0.31}" x2="${cx - 18}" y2="${gy}" ${STROKE}/>
+      <line x1="${cx}" y1="${gy - fh * 0.31}" x2="${cx + 18}" y2="${gy}" ${STROKE}/>`;
   }
 
   if (f === "medium") {
     const hy = H * (0.31 + r() * 0.05);
-    const hr = 46 + pick(r, 14);
+    const hr = Math.min(46 + pick(r, 14), H * 0.16);
     const shoulderY = hy + hr + 24;
     const sw = 76 + pick(r, 34);
     return `
@@ -150,14 +155,15 @@ function figure(f: Framing, r: () => number): string {
       <path d="M ${cx + sw} ${H} C ${cx + sw - 6} ${shoulderY + 40}, ${cx + sw * 0.7} ${shoulderY}, ${cx + hr * 0.7} ${hy + hr - 6}" ${STROKE}/>`;
   }
 
-  // close / xclose: 큰 얼굴
+  // close / xclose: 큰 얼굴. 얼굴이 프레임 밖으로 나가지 않게 짧은 변에도 묶는다.
   const hy = H * (f === "xclose" ? 0.5 : 0.46);
-  const hr = f === "xclose" ? 150 + pick(r, 20) : 104 + pick(r, 24);
+  const want = f === "xclose" ? 150 + pick(r, 20) : 104 + pick(r, 24);
+  const hr = Math.min(want, Math.min(W, H) * (f === "xclose" ? 0.46 : 0.34));
   return head(cx, hy, hr, r);
 }
 
-function hookMark(r: () => number): string {
-  const x = 300 + (r() - 0.5) * 20;
+function hookMark(r: () => number, W: number): string {
+  const x = W - 60 + (r() - 0.5) * 20;
   const y = 120;
   const spikes: string[] = [];
   for (let i = 0; i < 12; i++) {
@@ -165,22 +171,28 @@ function hookMark(r: () => number): string {
     const rr = i % 2 === 0 ? 30 : 15;
     spikes.push(`${x + Math.cos(a) * rr},${y + Math.sin(a) * rr}`);
   }
-  return `<polygon points="${spikes.join(" ")}" fill="#ffb454" opacity="0.9"/>
-    <text x="${x}" y="${y + 5}" font-size="13" font-weight="700" text-anchor="middle" fill="#1a1205">HOOK</text>`;
+  return `<polygon points="${spikes.join(" ")}" fill="#e0a93b" opacity="0.9"/>
+    <text x="${x}" y="${y + 5}" font-size="13" font-weight="700" text-anchor="middle" fill="#14140f">HOOK</text>`;
 }
 
 // SVG 마크업 문자열 생성. variant를 바꾸면 같은 컷이라도 다른 러프 스케치가 나온다
 // (mock 재생성 시 "다시 그려졌다"는 느낌을 주기 위함).
-export function mockSketchSvg(cut: Cut, variant = 0): string {
+export function mockSketchSvg(cut: Cut, variant = 0, aspectId?: AspectId): string {
+  const { w: W, h: H } = getAspect(aspectId);
   const seed = hashSeed(`${cut.no}|${cut.description}|${cut.shot ?? ""}|${variant}`);
   const r = rng(seed);
   const f = framingOf(cut.shot);
 
-  const descLines = wrap(cut.description || "", 18, 3);
+  // 글자 수/줄 수를 프레임에 맞춘다. 폭이 넓으면 한 줄에 더 들어가고,
+  // 높이가 낮으면(가로 포맷) 줄 수를 줄여 설명 패널이 화면을 잡아먹지 않게 한다.
+  const perLine = Math.round(18 * (W / 360));
+  const maxLines = H >= 480 ? 3 : 2;
+  const descLines = wrap(cut.description || "", perLine, maxLines);
+  const panelH = maxLines * 20 + 32;
   const descText = descLines
     .map(
       (ln, i) =>
-        `<text x="20" y="${H - 66 + i * 20}" font-size="15" fill="#4a453d">${esc(ln)}</text>`
+        `<text x="20" y="${H - panelH + 26 + i * 20}" font-size="15" fill="#4a453d">${esc(ln)}</text>`
     )
     .join("");
 
@@ -204,20 +216,24 @@ export function mockSketchSvg(cut: Cut, variant = 0): string {
   <rect x="0" y="0" width="${W}" height="${H}" fill="#f6f4ee"/>
   <g ${rough}>
     <rect x="10" y="10" width="${W - 20}" height="${H - 20}" fill="none" stroke="#8a8577" stroke-width="2"/>
-    ${figure(f, r)}
+    ${figure(f, r, W, H)}
   </g>
   ${shotLabel}
-  ${cut.is_hook ? hookMark(r) : ""}
-  <rect x="0" y="${H - 92}" width="${W}" height="92" fill="#f6f4ee" opacity="0.86"/>
-  <line x1="16" y1="${H - 90}" x2="${W - 16}" y2="${H - 90}" stroke="#d9d4c8" stroke-width="1.5"/>
+  ${cut.is_hook ? hookMark(r, W) : ""}
+  <rect x="0" y="${H - panelH}" width="${W}" height="${panelH}" fill="#f6f4ee" opacity="0.86"/>
+  <line x1="16" y1="${H - panelH + 2}" x2="${W - 16}" y2="${H - panelH + 2}" stroke="#d9d4c8" stroke-width="1.5"/>
   ${descText}
   <text x="${W - 16}" y="30" font-size="11" text-anchor="end" fill="#b8b1a2">SKETCH · mock</text>
 </svg>`;
 }
 
 // <img src>에 바로 쓸 수 있는 data URL
-export function mockSketchDataUrl(cut: Cut, variant = 0): string {
-  const svg = mockSketchSvg(cut, variant);
+export function mockSketchDataUrl(
+  cut: Cut,
+  variant = 0,
+  aspectId?: AspectId
+): string {
+  const svg = mockSketchSvg(cut, variant, aspectId);
   const encoded = encodeURIComponent(svg).replace(/'/g, "%27").replace(/"/g, "%22");
   return `data:image/svg+xml;charset=utf-8,${encoded}`;
 }

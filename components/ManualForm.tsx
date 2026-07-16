@@ -2,17 +2,23 @@
 
 import { useState } from "react";
 import { Cut, emptyCut } from "@/lib/types";
-import { EXAMPLE_CUTS } from "@/lib/examples";
+import { exampleCutsFor } from "@/lib/examples";
+import { FormatId, getFormat } from "@/lib/formats";
 
 // 처음엔 예시 콘티로 채워서 "무엇을 어떻게 적는지" 바로 보이게 한다.
+// 예시는 고른 포맷을 따라간다(광고를 골랐으면 광고 콘티가 채워진다).
 export default function ManualForm({
   onReady,
+  formatId,
+  imagePicker,
 }: {
   onReady: (cuts: Cut[]) => void;
+  formatId: FormatId;
+  // "보드 만들기" 바로 위에 꽂을 그림 provider 선택 블록 (InputScreen이 만든다)
+  imagePicker: React.ReactNode;
 }) {
-  const [cuts, setCuts] = useState<Cut[]>(() =>
-    EXAMPLE_CUTS.map((c) => ({ ...c }))
-  );
+  const format = getFormat(formatId);
+  const [cuts, setCuts] = useState<Cut[]>(() => exampleCutsFor(formatId));
   const [error, setError] = useState<string | null>(null);
 
   const update = (i: number, patch: Partial<Cut>) => {
@@ -43,17 +49,20 @@ export default function ManualForm({
     <div>
       <div className="panel" style={{ marginBottom: 16 }}>
         <div className="btn-row" style={{ justifyContent: "space-between" }}>
+          {/* 포맷을 바꿔도 입력하던 컷은 지우지 않는다(되돌릴 수 없으므로).
+              그래서 안내문구가 "아래 내용"을 단정하면 어긋난다 —
+              포맷 이름은 항상 정확한 버튼 쪽에 붙인다. */}
           <div className="hint" style={{ margin: 0 }}>
-            아래는 <strong>예시</strong>예요(다이어트 야식 릴스). 내용만 바꿔서 쓰거나,
-            비우고 처음부터 작성하세요. <strong>화면 묘사</strong>가 스케치의 소스라
-            제일 중요합니다.
+            아래는 <strong>예시</strong>예요. 내용만 바꿔서 쓰거나, 비우고 처음부터
+            작성하세요. <strong>화면 묘사</strong>가 스케치의 소스라 제일 중요합니다.
           </div>
           <div className="btn-row">
             <button
               className="btn ghost sm"
-              onClick={() => setCuts(EXAMPLE_CUTS.map((c) => ({ ...c })))}
+              onClick={() => setCuts(exampleCutsFor(formatId))}
+              title={`${format.exampleLabel} 예시로 채웁니다`}
             >
-              예시 다시 불러오기
+              {format.exampleLabel} 예시
             </button>
             <button
               className="btn ghost sm"
@@ -124,16 +133,16 @@ export default function ManualForm({
               />
             </div>
             <div className="full">
-              <label className="label">자막</label>
+              <label className="label">{format.labels.caption}</label>
               <input
                 type="text"
-                placeholder="화면에 뜨는 자막"
+                placeholder={`화면에 뜨는 ${format.labels.caption}`}
                 value={cut.caption ?? ""}
                 onChange={(e) => update(i, { caption: e.target.value })}
               />
             </div>
             <div>
-              <label className="label">대사 / 나레이션</label>
+              <label className="label">{format.labels.dialogue}</label>
               <input
                 type="text"
                 placeholder="말하는 대사"
@@ -142,10 +151,10 @@ export default function ManualForm({
               />
             </div>
             <div>
-              <label className="label">촬영 팁</label>
+              <label className="label">{format.labels.tip} 노트</label>
               <input
                 type="text"
-                placeholder="삼각대 / 셀카 / 손 인서트 등"
+                placeholder={format.tipPlaceholder}
                 value={cut.shooting_tip ?? ""}
                 onChange={(e) => update(i, { shooting_tip: e.target.value })}
               />
@@ -154,7 +163,11 @@ export default function ManualForm({
         </div>
       ))}
 
-      {error && <p className="error">⚠ {error}</p>}
+      <div className="panel" style={{ marginBottom: 16 }}>
+        {imagePicker}
+      </div>
+
+      {error && <p className="error">{error}</p>}
 
       <div className="btn-row" style={{ marginTop: 8 }}>
         <button className="btn" onClick={addCut}>
