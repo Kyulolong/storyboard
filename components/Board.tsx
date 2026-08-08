@@ -126,7 +126,10 @@ export default function Board({
       const { toPng } = await import("html-to-image");
       const dataUrl = await toPng(boardRef.current, {
         pixelRatio: 2,
-        backgroundColor: "#0f1115",
+        // 내보낸 PNG 의 여백색. 화면의 --bg(책상색)와 같아야 저장한 그림이
+        // 방금 보던 보드와 같은 것으로 보인다. 예전엔 #0f1115 라는 푸른 검정이
+        // 박혀 있어서, 앱 어디에도 없는 색이 결과물에만 나왔다.
+        backgroundColor: "#f5f4ef",
         // cacheBust 금지: 원격 이미지를 재요청하면 rate limit에 걸려 실패한다.
         // 이미 로드된(CORS) 이미지를 그대로 인라인한다.
         // 화면 조작용/진단용 요소는 결과물에서 제외한다.

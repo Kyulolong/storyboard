@@ -1,9 +1,17 @@
-/* 디자인 시스템: ~/.claude/DESIGN.md — "따뜻한 캔버스 위의 형광 초록 한 점"
+/* 디자인 시스템: ~/.claude/DESIGN.md — "흰 종이 위의 형광 초록 한 점"
  *
- * 이 앱은 다크 한 가지에 의도적으로 커밋한다. 화면의 주인공이 종이색(--paper)
- * 스케치라서, 어두운 따뜻한 크롬이 그걸 "책상 위에 놓인 종이"로 읽히게 만든다.
- * 밝은 배경에선 종이가 배경에 녹아 콘티가 아니라 웹페이지처럼 보인다.
- * (인쇄/PDF는 아래 @media print에서 흰 바탕으로 뒤집는다.)
+ * 예전엔 다크에 커밋했었다. 이유는 이랬다: 화면의 주인공이 종이색(--paper)
+ * 스케치라서, 어두운 크롬이 그걸 "책상 위에 놓인 종이"로 읽히게 만든다고.
+ * 밝게 뒤집으면 종이가 배경에 녹는다는 걱정이었다.
+ *
+ * 라이트로 오면서 그 걱정은 '밝기 순서'로 푼다. 종이가 화면에서 가장 밝은 면이면
+ * 어느 테마에서든 종이로 읽힌다 — 다크에서도 사실 그래서 통했던 거다.
+ * 그래서 여기만 기본 토큰과 다르게 3단으로 깐다:
+ *
+ *   --bg #f5f4ef (책상)  <  --surface #fafaf7 (컷 카드)  <  --paper #ffffff (종이)
+ *
+ * 기본 --bg 가 순백인데 여기서 한 단 내린 건 누락이 아니라 이 앱의 선택이다.
+ * (인쇄/PDF는 아래 @media print에서 완전한 흰 바탕으로 간다.)
  *
  * 형광이 찍히는 '한 점':
  *   - 입력 화면: 지금 해야 할 그 버튼 (JSON이 비었으면 "JSON 생성",
@@ -14,40 +22,40 @@
 :root {
   /* ── 형광 한 점 ───────────────────────── */
   --acid: #8fff00;
-  --acid-soft: #b8ff5c; /* hover 등 보조 강조 */
+  --acid-soft: #7ce600; /* 눌렀을 때. 밝은 바탕에선 '더 밝게'가 아니라 '더 진하게'가 맞다 */
   /* "현재 배경에서 항상 보이는 초록". 이름은 '진한 초록'이지만 역할이 그렇다.
-     어두운 바탕에선 형광 그대로, 밝은 바탕(아래 @media print)에선 뒤집힌다. */
-  --acid-deep: #8fff00;
-  /* 형광 배경 위의 글자색. --bg를 쓰지 않고 못 박아둔다:
-     나중에 라이트 테마가 붙어도 이 조합(16.5:1)이 안 깨지게. */
+     밝은 바탕에선 #8fff00 이 1.27:1 로 사라지므로 브랜드 점·아이콘은 이걸 쓴다. */
+  --acid-deep: #3d6b00;
+  /* 형광 배경 위의 글자색. --ink 를 쓰지 않고 못 박아둔다:
+     다크가 다시 붙어도 이 조합(14.5:1)이 안 깨지게. */
   --on-acid: #14140f;
 
-  /* ── 따뜻한 캔버스 (dark) — 푸른 검정이 아니라 올리브 기운의 검정 ── */
-  --bg: #14140f;
-  --surface: #1c1b15;
-  --surface-2: #24231b;
-  --line: #333226;
-  --ink: #f0eee4;
-  --ink-soft: #aba795;
-  --ink-faint: #8a8574;
-  --paper: #f6f4ee; /* 스케치가 그려지는 종이. 이미 따뜻한 흰색 */
+  /* ── 흰 종이 — 순수 회색이 아니라 모래 기운의 중립색 ── */
+  --bg: #f5f4ef;
+  --surface: #fafaf7;
+  --surface-2: #efeee7;
+  --line: #e2e0d7;
+  --ink: #1a1a17;
+  --ink-soft: #55544c;
+  --ink-faint: #73726a;
+  --paper: #ffffff; /* 스케치가 그려지는 종이. 화면에서 가장 밝은 면이다 */
 
   /* ── 의미색 ──────────────────────────── */
-  --happy-accident: #e8834a; /* 에러 — 빨강이 아니라 따뜻한 테라코타 */
-  --caution: #e0a93b;
+  --happy-accident: #b4551f; /* 에러 — 빨강이 아니라 따뜻한 테라코타 */
+  --caution: #8a5a00;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(60, 52, 30, 0.05);
+  --shadow-md: 0 6px 20px -6px rgba(60, 52, 30, 0.12);
 
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 18px;
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 24px;
 
   --font-sans: Pretendard, -apple-system, BlinkMacSystemFont,
     "Apple SD Gothic Neo", "Segoe UI", "Noto Sans KR", sans-serif;
   --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
 
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 * {
@@ -95,7 +103,7 @@ a:hover {
 }
 
 /* 브랜드 마크 — 서비스마다 로고를 새로 그리지 않는다.
-   워드마크 앞에 찍은 초록 점 하나가 모든 서비스의 공통 마크다. */
+   워드마크 앞에 붙는 마크 하나가 모든 서비스의 공통 얼굴이다. */
 .brand {
   display: flex;
   flex-direction: column;
@@ -111,14 +119,16 @@ a:hover {
   letter-spacing: -0.015em;
   text-wrap: balance;
 }
-/* 납작한 단색 정원. 그라데이션·글로우·테두리 없음 — 점은 그냥 점이다.
-   em으로 잡아 제목 글자의 0.75배로 함께 커지고 작아진다. */
+/* 브랜드 마크 — ㄱ 과 점 (docs/DESIGN.md §7).
+   형광 도형을 어두운 외곽선이 감싼 2겹 SVG 라, 밝은 바탕에서도 밤바다에서도
+   그대로 읽힌다. 색만 뽑아 쓰거나 외곽선을 빼면 흰 배경에서 사라진다(1.27:1).
+   파일 대신 data URI 로 박는 이유: 이 앱들은 kyulolong.com/<slug> 에 얹히는데
+   상대경로 자산은 루트로 풀려서 404 난다. 인라인이면 그 문제가 아예 없다. */
 .logo {
-  width: 0.75em;
-  height: 0.75em;
-  border-radius: 50%;
+  width: 0.95em;
+  height: 0.95em;
   flex: none;
-  background: var(--acid-deep);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cpath d='M5.6 3.2 H26.4 L18.39 21.20 L12.37 21.20 L18.11 8.3 H5.6 Z' fill='%2314180F' stroke='%2314180F' stroke-width='3.0' stroke-linejoin='round'/%3E%3Ccircle cx='15.38' cy='27.65' r='3.85' fill='%2314180F'/%3E%3Cpath d='M5.6 3.2 H26.4 L18.39 21.20 L12.37 21.20 L18.11 8.3 H5.6 Z' fill='%238FFF00' stroke='%238FFF00' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ccircle cx='15.38' cy='27.65' r='3.1' fill='%238FFF00'/%3E%3C/svg%3E") no-repeat center / contain;
 }
 .brand p {
   margin: 0;
