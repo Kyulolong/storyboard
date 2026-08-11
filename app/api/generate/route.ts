@@ -36,7 +36,11 @@ async function viaGroq(system: string, idea: string, key: string) {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+      // llama-3.3-70b-versatile은 Groq에서 폐기 예정이라 언젠가 호출이 끊긴다.
+      // 한국어에 한자·가나를 섞는 버릇도 있었다("볶음밥용米", "후라이パン").
+      // Groq이 권하는 대체 모델로 바꾼다 — 라이브에서 같은 아이디어로
+      // 비교해 혼입이 사라지는 것까지 확인했다.
+      model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
       temperature: 0.7,
       response_format: { type: "json_object" },
       messages: [
