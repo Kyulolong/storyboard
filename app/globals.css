@@ -128,7 +128,9 @@ a:hover {
   width: 0.95em;
   height: 0.95em;
   flex: none;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cpath d='M5.6 3.2 H26.4 L18.39 21.20 L12.37 21.20 L18.11 8.3 H5.6 Z' fill='%2314180F' stroke='%2314180F' stroke-width='3.0' stroke-linejoin='round'/%3E%3Ccircle cx='15.38' cy='27.65' r='3.85' fill='%2314180F'/%3E%3Cpath d='M5.6 3.2 H26.4 L18.39 21.20 L12.37 21.20 L18.11 8.3 H5.6 Z' fill='%238FFF00' stroke='%238FFF00' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ccircle cx='15.38' cy='27.65' r='3.1' fill='%238FFF00'/%3E%3C/svg%3E") no-repeat center / contain;
+  /* kyulolong.com/icon.svg와 좌표까지 같은 그림이어야 한다. 손으로 옮겨 적다가
+     어긋나면 서비스마다 마크가 조금씩 다른 얼굴이 된다 — 실제로 그랬다. */
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none'%3E%3Cpath d='M5.6 3.2 H26.4 L18.39 21.20 L12.91 21.20 L18.88 7.8 H5.6 Z' fill='%2314180F' stroke='%2314180F' stroke-width='3.0' stroke-linejoin='round'/%3E%3Ccircle cx='15.65' cy='27.65' r='3.65' fill='%2314180F'/%3E%3Cpath d='M5.6 3.2 H26.4 L18.39 21.20 L12.91 21.20 L18.88 7.8 H5.6 Z' fill='%238FFF00' stroke='%238FFF00' stroke-width='1.5' stroke-linejoin='round'/%3E%3Ccircle cx='15.65' cy='27.65' r='2.9' fill='%238FFF00'/%3E%3C/svg%3E") no-repeat center / contain;
 }
 .brand p {
   margin: 0;
