@@ -6,6 +6,10 @@ export interface Cut {
   is_hook?: boolean; // 훅 컷 여부 (릴스 첫 1~2초 이탈 방지용)
   shot?: string; // 샷 사이즈: 클로즈업 / 미디엄샷 / 롱샷 등
   description: string; // 화면 묘사 → 이미지 생성의 소스 (필수)
+  // 그림 생성에만 쓰는 영어 묘사. 이미지 모델은 한국어를 못 읽어서,
+  // description(한국어)을 그대로 넘기면 프롬프트를 통째로 무시하고
+  // 엉뚱한 그림을 그린다. 없으면 description으로 폴백한다(예전 JSON 호환).
+  image_prompt?: string;
   dialogue?: string; // 대사 / 나레이션
   caption?: string; // 화면 자막 (릴스는 자막이 연출 요소)
   shooting_tip?: string; // 혼자 찍는 사람용 촬영 팁
@@ -18,6 +22,7 @@ export function emptyCut(no: number): Cut {
     is_hook: false,
     shot: "",
     description: "",
+    image_prompt: "",
     dialogue: "",
     caption: "",
     shooting_tip: "",

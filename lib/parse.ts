@@ -107,6 +107,9 @@ export function parseContiJson(raw: string): ParseResult {
       is_hook: truthy(item.is_hook ?? item.hook ?? item.훅),
       shot: strOrUndef(item.shot ?? item.shot_size ?? item.샷 ?? item.샷사이즈),
       description,
+      image_prompt: strOrUndef(
+        item.image_prompt ?? item.imagePrompt ?? item.영어묘사
+      ),
       dialogue: strOrUndef(
         item.dialogue ?? item.line ?? item.대사 ?? item.나레이션
       ),

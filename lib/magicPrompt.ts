@@ -17,6 +17,8 @@ function fieldGuide(f: Format): string {
 - is_hook: 훅 컷이면 true (보통 1번 컷)
 - shot: 샷 사이즈 (익스트림롱샷/롱샷/미디엄샷/클로즈업/익스트림클로즈업 등)
 - description: 화면에 보이는 그림 묘사. 스케치로 그릴 소스라 "무엇이 어떻게 보이는지" 구체적으로.
+- image_prompt: description과 같은 장면을 **영어로** 옮긴 것. 그림 생성 모델이 한국어를 못 읽어서 이 값이 없으면 엉뚱한 그림이 나온다.
+  샷 사이즈도 영어로 함께 녹여라(close-up shot 등). 사람은 "a person"처럼 일반적으로 쓰고, 고유명사·한글은 넣지 마라.
 - dialogue: ${f.labels.dialogue} (없으면 "")
 - caption: ${f.labels.caption} (없으면 "")
 - shooting_tip: ${f.labels.tip} 노트 한 줄`;
@@ -39,8 +41,10 @@ export function systemPromptFor(format: Format, aspect: Aspect): string {
 ${format.rules}
 - 반드시 사용자의 아이디어 주제만 사용해. 절대 다른 주제로 바꾸지 마.
 
-출력: 설명/인사말 없이 오직 JSON 하나만. 값은 한국어.
-스키마: {"cuts":[{"no":number,"duration_sec":number,"is_hook":boolean,"shot":string,"description":string,"dialogue":string,"caption":string,"shooting_tip":string}]}`;
+출력: 설명/인사말 없이 오직 JSON 하나만. image_prompt만 영어, 나머지 값은 한국어.
+image_prompt는 그 컷을 그림으로 그리기 위한 영어 묘사다. 샷 사이즈도 영어로 녹이고(close-up shot 등),
+사람은 "a person"처럼 일반적으로 쓴다. 그림 모델이 한국어를 못 읽으므로 여기에 한글을 넣으면 안 된다.
+스키마: {"cuts":[{"no":number,"duration_sec":number,"is_hook":boolean,"shot":string,"description":string,"image_prompt":string,"dialogue":string,"caption":string,"shooting_tip":string}]}`;
 }
 
 // 붙여넣기용 마법 프롬프트 전문.

@@ -35,7 +35,15 @@ const MAX_IMAGE_BYTES = 3_500_000;
 // 프롬프트는 그림 느낌 프리셋(lib/formats.ts)에서 만든다.
 // 스타일 문구와 "단일 프레임 강제" 규칙이 거기 함께 있어야 어긋나지 않는다.
 function buildPrompt(cut: Cut, style: ImageStyle): string {
-  return buildImagePrompt(cut.description, cut.shot, style);
+  // 그림 모델은 한국어를 못 읽는다 — 한국어 description을 넘기면 프롬프트를
+  // 통째로 무시하고 스타일 지시어만 보고 아무거나 그린다.
+  // image_prompt(영어)가 있으면 그걸 쓰고, 샷 사이즈도 이미 그 안에 영어로
+  // 녹아 있으므로 한국어 shot을 덧붙이지 않는다.
+  // 본문은 사용자가 보낸 값이다. 그대로 URL에 들어가므로 길이를 잘라둔다.
+  const src = (cut.image_prompt || cut.description).slice(0, 600);
+  return cut.image_prompt
+    ? buildImagePrompt(src, undefined, style)
+    : buildImagePrompt(src, cut.shot, style);
 }
 
 // 원격 이미지를 받아 data URL(base64)로 인코딩.
@@ -76,6 +84,10 @@ async function viaPollinations(
   const seed = (Math.abs(cut.no) * 100003 + variant) % 1_000_000;
   // 작은 해상도 = 더 빠름. enhance는 스타일을 따른다 —
   // 낙서는 덧붙이면 복잡해지고, 실사는 덧붙는 게 이득이다.
+  //
+  // model=flux는 지금 익명 티어에 없어서 서버가 조용히 sana로 바꿔 처리한다
+  // (응답의 x-model-used로 확인 가능). flux가 돌아오면 그대로 다시 쓰이도록 남겨둔다.
+  // sana는 한국어를 못 읽으므로 프롬프트는 반드시 영어여야 한다 → buildPrompt 참고.
   const url = `https://image.pollinations.ai/prompt/${prompt}?width=${aspect.w}&height=${aspect.h}&model=flux&nologo=true&enhance=${style.enhance}&seed=${seed}`;
 
   const deadline = Date.now() + POLLINATIONS_BUDGET_MS;

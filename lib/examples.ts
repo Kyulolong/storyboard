@@ -14,6 +14,8 @@ export const EXAMPLE_CUTS: Cut[] = [
     shot: "클로즈업",
     description:
       "냉장고 문을 확 열고 카메라를 향해 놀란 표정. 야식이 먹고 싶어 참는 얼굴",
+    image_prompt:
+      "close-up of a person yanking a refrigerator door wide open at night, shocked hungry face toward the camera",
     dialogue: "다이어트 중인데 야식 땡길 때…",
     caption: "살 안 찌는 야식 3개",
     shooting_tip: "삼각대를 냉장고 옆에. 문 여는 순간 포착",
@@ -24,6 +26,8 @@ export const EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "미디엄샷",
     description: "손가락 하나를 펴 보이며 그릭요거트 통을 카메라에 내민다",
+    image_prompt:
+      "medium shot of a person holding up one finger and pushing a tub of greek yogurt toward the camera",
     dialogue: "첫 번째, 그릭요거트",
     caption: "① 그릭요거트 (단백질 폭탄)",
     shooting_tip: "제품 라벨이 보이게 카메라 쪽으로",
@@ -34,6 +38,8 @@ export const EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "클로즈업",
     description: "접시 위 방울토마토를 포크로 콕 찍는 손 인서트 컷",
+    image_prompt:
+      "close-up insert of a hand spearing a cherry tomato on a plate with a fork, top-down view",
     dialogue: "두 번째, 방울토마토",
     caption: "② 방울토마토 (밤에 부담 0)",
     shooting_tip: "손 인서트. 테이블에 폰 눕혀 탑다운으로",
@@ -44,6 +50,8 @@ export const EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "미디엄샷",
     description: "삶은 계란 두 개를 양손에 들고 카메라 향해 웃는다",
+    image_prompt:
+      "medium shot of a smiling person holding one boiled egg in each hand up toward the camera",
     dialogue: "세 번째, 삶은 계란",
     caption: "③ 삶은 계란 (포만감 甲)",
     shooting_tip: "밝은 창가, 얼굴+손 함께 프레임에",
@@ -54,6 +62,8 @@ export const EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "클로즈업",
     description: "카메라를 손가락으로 가리키며 저장하라는 제스처",
+    image_prompt:
+      "close-up of a person pointing one finger directly at the camera",
     dialogue: "까먹지 말고 저장!",
     caption: "🔖 저장 필수",
     shooting_tip: "손가락이 렌즈 쪽으로 오게",
@@ -71,6 +81,8 @@ export const AD_EXAMPLE_CUTS: Cut[] = [
     shot: "익스트림클로즈업",
     description:
       "얼음이 가득한 잔에 콜드브루가 쏟아진다. 잔 표면에 물방울이 맺히고 김이 서린다",
+    image_prompt:
+      "extreme close-up of cold brew coffee pouring into a glass full of ice, condensation beading on the cold glass",
     dialogue: "",
     caption: "당신의 아침이 달라진다",
     shooting_tip: "역광 하이키, 240fps 슬로우모션, 차가운 톤앤매너",
@@ -82,6 +94,8 @@ export const AD_EXAMPLE_CUTS: Cut[] = [
     shot: "미디엄샷",
     description:
       "알람에 겨우 눈을 뜨는 20대 직장인. 무거운 표정으로 침대에 걸터앉아 있다",
+    image_prompt:
+      "medium shot of a tired young office worker sitting on the edge of a bed just after waking to an alarm, heavy sleepy expression",
     dialogue: "매일 아침이 무거운 당신에게",
     caption: "또 시작된 월요일",
     shooting_tip: "저채도 차가운 조명, 핸드헬드로 나른한 느낌",
@@ -92,6 +106,8 @@ export const AD_EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "클로즈업",
     description: "콜드브루를 한 모금 마시자 표정이 확 밝아진다",
+    image_prompt:
+      "close-up of a person taking a sip of iced cold brew coffee, face brightening up with relief",
     dialogue: "단 한 모금이면 충분합니다",
     caption: "한 모금의 반전",
     shooting_tip: "창가 자연광으로 전환. 컷 전후 색온도를 대비시킬 것",
@@ -102,6 +118,8 @@ export const AD_EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "익스트림클로즈업",
     description: "제품 패키지가 정면으로 보이도록 테이블에 놓인 콜드브루 병",
+    image_prompt:
+      "extreme close-up of a cold brew coffee bottle standing on a table, label facing the camera, blurred background",
     dialogue: "14시간 콜드 브루잉",
     caption: "진하게, 부드럽게",
     shooting_tip: "제품 인서트. 라벨 정면 고정, 얕은 심도로 배경 날리기",
@@ -112,6 +130,8 @@ export const AD_EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "롱샷",
     description: "잔을 들고 사무실로 경쾌하게 걸어 들어가는 뒷모습",
+    image_prompt:
+      "long shot from behind of a person walking briskly into a bright office holding a coffee cup",
     dialogue: "오늘을 가볍게 시작하세요",
     caption: "가볍게 시작하는 하루",
     shooting_tip: "달리 트래킹, 밝은 하이키 톤",
@@ -122,6 +142,8 @@ export const AD_EXAMPLE_CUTS: Cut[] = [
     is_hook: false,
     shot: "미디엄샷",
     description: "흰 배경 위 제품과 브랜드 로고. 하단에 구매 안내 문구",
+    image_prompt:
+      "a coffee bottle centered on a plain white background, simple logo mark above it, medium shot",
     dialogue: "지금, 편의점에서",
     caption: "브랜드 로고 + 지금 만나보세요",
     shooting_tip: "CTA 컷. 로고 중앙 정렬, 3초 홀드",

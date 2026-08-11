@@ -203,6 +203,7 @@ export const FORMATS: Record<FormatId, Format> = {
       "is_hook": true,
       "shot": "클로즈업",
       "description": "카메라를 향해 놀란 표정. 손으로 입을 가림",
+      "image_prompt": "close-up of a person with a shocked face looking straight at the camera, covering their mouth with one hand",
       "dialogue": "이거 진짜 아무도 안 알려줘요",
       "caption": "99%가 모르는 사실",
       "shooting_tip": "삼각대, 눈높이, 얼굴 클로즈업"
@@ -232,6 +233,7 @@ export const FORMATS: Record<FormatId, Format> = {
       "is_hook": true,
       "shot": "익스트림클로즈업",
       "description": "얼음이 든 잔에 콜드브루가 쏟아진다. 잔 표면에 물방울이 맺힘",
+      "image_prompt": "extreme close-up of cold brew coffee pouring into a glass full of ice, condensation beading on the glass",
       "dialogue": "아침을 깨우는 한 잔",
       "caption": "당신의 아침이 달라진다",
       "shooting_tip": "역광 하이키, 슬로우모션, 차가운 톤앤매너"
