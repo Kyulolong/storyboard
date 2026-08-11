@@ -3,6 +3,7 @@ import { mockSketchDataUrl } from "./mockSketch";
 import { AspectId, DEFAULT_ASPECT, ImageStyleId } from "./formats";
 import { ImageProviderId } from "./providers";
 import { keyHeader } from "./keys";
+import { apiPath } from "./basePath";
 
 export interface SketchResult {
   url: string;
@@ -43,7 +44,7 @@ export async function generateSketch(
     return { url: mockSketchDataUrl(cut, variant, aspect), provider: "mock" };
   }
 
-  const res = await fetch("/api/sketch", {
+  const res = await fetch(apiPath("/api/sketch"), {
     method: "POST",
     // 키는 본문이 아니라 헤더로 보낸다(본문은 로그에 통째로 찍히기 쉽다).
     headers: { "content-type": "application/json", ...keyHeader(userKey) },

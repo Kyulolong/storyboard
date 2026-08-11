@@ -2,6 +2,7 @@ import { Cut } from "./types";
 import { AspectId, FormatId } from "./formats";
 import { LlmProviderId } from "./providers";
 import { keyHeader } from "./keys";
+import { apiPath } from "./basePath";
 
 // Groq 무료 한도 초과(429) 전용 에러 → UI에서 마법 프롬프트로 유도할 때 구분용.
 export class RateLimitError extends Error {
@@ -20,7 +21,7 @@ export async function generateConti(
   // 사용자가 넣은 키. 없으면 헤더를 안 붙이고 서버 키로 동작한다.
   userKey?: string
 ): Promise<Cut[]> {
-  const res = await fetch("/api/generate", {
+  const res = await fetch(apiPath("/api/generate"), {
     method: "POST",
     // 키는 본문이 아니라 헤더로 보낸다(본문은 로그에 통째로 찍히기 쉽다).
     headers: { "content-type": "application/json", ...keyHeader(userKey) },

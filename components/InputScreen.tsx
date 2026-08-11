@@ -6,6 +6,7 @@ import { parseContiJson } from "@/lib/parse";
 import { magicPromptWithIdea } from "@/lib/magicPrompt";
 import { exampleJsonFor } from "@/lib/examples";
 import { generateConti, RateLimitError } from "@/lib/generate";
+import { apiPath } from "@/lib/basePath";
 import {
   ASPECTS,
   AspectId,
@@ -78,7 +79,7 @@ export default function InputScreen({
     const load = async () => {
       for (let attempt = 0; ; attempt++) {
         try {
-          const r = await fetch("/api/providers");
+          const r = await fetch(apiPath("/api/providers"));
           // fetch는 404/500에도 throw하지 않는다. 상태를 직접 봐야 한다.
           if (!r.ok) throw new Error(`HTTP ${r.status}`);
           const a: Avail = (await r.json()) as Avail;

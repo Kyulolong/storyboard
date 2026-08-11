@@ -1,0 +1,17 @@
+# 빌드 컨텍스트에서 뺄 것들.
+# .env*는 특히 중요하다 — 키가 이미지 레이어에 구워지면 지워도 남는다.
+node_modules
+.next
+out
+build
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+tsconfig.tsbuildinfo
+.claude
+README.md
+dev-portable.cmd
