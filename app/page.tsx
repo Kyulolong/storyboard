@@ -92,6 +92,13 @@ export default function Home() {
               ← 새로 입력
             </button>
           )}
+          {/* 규로롱 본사이트로 돌아가는 길. 낙관 바로 옆에 둬서, 컷을 만드는 중에
+              "새로 입력"이 나타나도 이 버튼의 자리는 흔들리지 않는다.
+              basePath는 <a>를 건드리지 않는다 — 상대 경로로 적으면 이 앱 안의
+              /storyboard/services/... 로 붙어버리므로 절대 주소로 쓴다. */}
+          <a className="btn ghost sm" href="https://kyulolong.com/services/storyboard">
+            ← 규로롱
+          </a>
           {/* 서명은 자랑이 아니라 낙관(落款). 늘 우측 끝에 조용히. */}
           <span className="credit">made by kyulolong</span>
         </div>
